@@ -1,0 +1,7 @@
+apiVersion: migrations.flywayoperator.io/v1alpha1
+kind: Migration
+metadata:
+  name: migration-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,0 +1,7 @@
+domain: flywayoperator.io
+repo: flyway-operator
+resources:
+- group: migrations
+  kind: Migration
+  version: v1alpha1
+version: "2"
