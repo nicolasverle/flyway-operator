@@ -1,0 +1,18 @@
+apiVersion: migrations.flywayoperator.op/v1alpha1
+kind: Migration
+metadata:
+  name: myMigration-v1.0.0
+spec:
+  db:
+    url: myserver.db:5432/myDb
+    secret: 
+      name: dbsecret
+      userKey: user
+      passwordKey: password
+    driver: org.postgresql.Driver
+  sql:
+    fromGit: 
+      checkoutUrl: git@github.com:nicolasverle/flyway-operator.git
+      branch: master
+      secret: gitSecret
+    path: examples/migrations/postgresql/v1.0.0

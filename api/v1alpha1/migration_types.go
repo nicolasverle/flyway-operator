@@ -17,19 +17,55 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"strings"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+const (
+	// SQLVolumeName that sets the name of volume for sql scripts
+	SQLVolumeName = "sql-scripts"
+)
 
 // MigrationSpec defines the desired state of Migration
 type MigrationSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	DB  DBSpec  `json:"db"`
+	SQL SQLSpec `json:"sql"`
+}
 
-	// Foo is an example field of Migration. Edit Migration_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type DBSpec struct {
+	URL      string     `json:"url"`
+	Secret   SecretSpec `json:"secret,omitempty"`
+	Vault    VaultSpec  `json:"vault,omitempty"`
+	User     string     `json:"user,omitempty"`
+	Password string     `json:"password,omitempty"`
+	Driver   string     `json:"driver"`
+}
+
+type SecretSpec struct {
+	Name        string `json:"name"`
+	UserKey     string `json:"userKey"`
+	PasswordKey string `json:"passwordKey"`
+}
+
+type VaultSpec struct {
+}
+
+func (db *DBSpec) DBName() string {
+	splitted := strings.Split(db.URL, "/")
+	return splitted[len(splitted)-1]
+}
+
+type SQLSpec struct {
+	Git         GitMigrationSpec `json:"fromGit,omitempty"`
+	VolumeClaim string           `json:"fromVolumeClaim,omitempty"`
+	Path        string           `json:"path"`
+}
+
+type GitMigrationSpec struct {
+	CheckoutURL string `json:"checkoutUrl"`
+	Branch      string `json:"branch"`
+	Secret      string `json:"secret"`
 }
 
 // MigrationStatus defines the observed state of Migration
