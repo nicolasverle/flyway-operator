@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"context"
-	"encoding/base64"
-	"fmt"
 
 	migrationsv1alpha1 "flyway-operator/api/v1alpha1"
 
@@ -57,18 +55,18 @@ func (s SecretCredential) GetUserPassword() (*UserPassword, error) {
 	if err := c.Get(context.Background(), client.ObjectKey{Namespace: s.Namespace, Name: s.Spec.Name}, &creds); err != nil {
 		return nil, err
 	}
-	fmt.Printf("%v\n", creds)
-	user, password := []byte{}, []byte{}
-	_, err = base64.StdEncoding.Decode(user, creds.Data[s.Spec.UserKey])
-	if err != nil {
-		return nil, err
-	}
-	_, err = base64.StdEncoding.Decode(password, creds.Data[s.Spec.PasswordKey])
-	if err != nil {
-		return nil, err
-	}
+	// fmt.Printf("%v\n", creds)
+	// user, password := []byte{}, []byte{}
+	// _, err = base64.StdEncoding.Decode(user, creds.Data[s.Spec.UserKey])
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// _, err = base64.StdEncoding.Decode(password, creds.Data[s.Spec.PasswordKey])
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	return &UserPassword{User: string(user), Password: string(password)}, nil
+	return &UserPassword{User: string(creds.Data[s.Spec.UserKey]), Password: string(creds.Data[s.Spec.PasswordKey])}, nil
 }
 
 func (s SecretCredential) MutateTemplate(tpl *corev1.PodTemplateSpec) {
