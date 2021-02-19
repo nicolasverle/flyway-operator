@@ -14,7 +14,7 @@ import (
 type (
 	// Driver interface
 	Driver interface {
-		CheckDBAvailability(spec *migrationsv1alpha1.DBSpec) (bool, error)
+		CheckDBAvailability(spec *migrationsv1alpha1.DBSpec, creds *UserPassword) (bool, error)
 		ConnectionURL(spec *migrationsv1alpha1.DBSpec) string
 	}
 
@@ -28,8 +28,8 @@ var (
 	}
 )
 
-func (d PostgresDriver) CheckDBAvailability(spec *migrationsv1alpha1.DBSpec) (bool, error) {
-	_, err := sqlx.Connect("postgres", fmt.Sprintf("%s:%s@%s", spec.User, spec.Password, spec.URL))
+func (d PostgresDriver) CheckDBAvailability(spec *migrationsv1alpha1.DBSpec, creds *UserPassword) (bool, error) {
+	_, err := sqlx.Connect("postgres", fmt.Sprintf("%s:%s@%s", creds.User, creds.Password, spec.URL))
 	if err != nil {
 		return false, err
 	}

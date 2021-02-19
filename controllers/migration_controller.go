@@ -63,7 +63,12 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			return ctrl.Result{}, errors.New("unable to get db credentials for migration")
 		}
 
-		wait := waitForDB(&migration.Spec.DB, log)
+		userPass, err := creds.GetUserPassword()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		wait := waitForDB(&migration.Spec.DB, log, userPass)
 		if <-wait == false {
 			return ctrl.Result{}, errors.New("timeout reached after trying to connect to db")
 		}
@@ -117,7 +122,7 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-func waitForDB(spec *migrationsv1alpha1.DBSpec, log logr.Logger) chan bool {
+func waitForDB(spec *migrationsv1alpha1.DBSpec, log logr.Logger, creds *UserPassword) chan bool {
 	wait := make(chan bool)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 
@@ -133,7 +138,7 @@ func waitForDB(spec *migrationsv1alpha1.DBSpec, log logr.Logger) chan bool {
 		defer cancel()
 		sqlDriver := Drivers[spec.Driver]
 		for {
-			_, err := sqlDriver.CheckDBAvailability(spec)
+			_, err := sqlDriver.CheckDBAvailability(spec, creds)
 			if err != nil {
 				time.Sleep(10 * time.Second)
 				log.Info("waiting for database availability...")
