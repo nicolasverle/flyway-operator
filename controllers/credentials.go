@@ -59,11 +59,11 @@ func (s SecretCredential) GetUserPassword() (*UserPassword, error) {
 	}
 	fmt.Printf("%v\n", creds)
 	var user, password []byte
-	_, err = base64.StdEncoding.Decode(creds.Data[s.Spec.UserKey], user)
+	_, err = base64.StdEncoding.Decode(user, creds.Data[s.Spec.UserKey])
 	if err != nil {
 		return nil, err
 	}
-	_, err = base64.StdEncoding.Decode(creds.Data[s.Spec.PasswordKey], password)
+	_, err = base64.StdEncoding.Decode(password, creds.Data[s.Spec.PasswordKey])
 	if err != nil {
 		return nil, err
 	}
