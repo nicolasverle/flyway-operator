@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 
 	migrationsv1alpha1 "flyway-operator/api/v1alpha1"
 
@@ -56,6 +57,7 @@ func (s SecretCredential) GetUserPassword() (*UserPassword, error) {
 	if err := c.Get(context.Background(), client.ObjectKey{Namespace: s.Namespace, Name: s.Spec.Name}, &creds); err != nil {
 		return nil, err
 	}
+	fmt.Printf("%v\n", creds)
 	var user, password []byte
 	_, err = base64.StdEncoding.Decode(creds.Data["username"], user)
 	if err != nil {
