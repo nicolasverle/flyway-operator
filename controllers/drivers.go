@@ -29,7 +29,7 @@ var (
 )
 
 func (d PostgresDriver) CheckDBAvailability(spec *migrationsv1alpha1.DBSpec, creds *UserPassword) (bool, error) {
-	_, err := sqlx.Connect("postgres", fmt.Sprintf("%s:%s@%s", creds.User, creds.Password, spec.URL))
+	_, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s", spec.Host, spec.Port, spec.DBName, creds.User, creds.Password))
 	if err != nil {
 		return false, err
 	}
@@ -37,5 +37,5 @@ func (d PostgresDriver) CheckDBAvailability(spec *migrationsv1alpha1.DBSpec, cre
 }
 
 func (d PostgresDriver) ConnectionURL(spec *migrationsv1alpha1.DBSpec) string {
-	return fmt.Sprintf("jdbc:postgresql://%s", spec.URL)
+	return fmt.Sprintf("jdbc:postgresql://%s:%d/%s", spec.Host, spec.Port, spec.DBName)
 }

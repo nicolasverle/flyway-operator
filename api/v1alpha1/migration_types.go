@@ -17,8 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"strings"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,12 +27,12 @@ type MigrationSpec struct {
 }
 
 type DBSpec struct {
-	URL      string     `json:"url"`
-	Secret   SecretSpec `json:"secret,omitempty"`
-	Vault    VaultSpec  `json:"vault,omitempty"`
-	User     string     `json:"user,omitempty"`
-	Password string     `json:"password,omitempty"`
-	Driver   string     `json:"driver"`
+	Host   string     `json:"host"`
+	Port   int32      `json:"port"`
+	DBName string     `json:"dbName"`
+	Secret SecretSpec `json:"secret,omitempty"`
+	Vault  VaultSpec  `json:"vault,omitempty"`
+	Driver string     `json:"driver"`
 }
 
 type SecretSpec struct {
@@ -44,11 +42,6 @@ type SecretSpec struct {
 }
 
 type VaultSpec struct {
-}
-
-func (db *DBSpec) DBName() string {
-	splitted := strings.Split(db.URL, "/")
-	return splitted[len(splitted)-1]
 }
 
 type SQLSpec struct {

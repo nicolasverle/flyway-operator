@@ -55,16 +55,6 @@ func (s SecretCredential) GetUserPassword() (*UserPassword, error) {
 	if err := c.Get(context.Background(), client.ObjectKey{Namespace: s.Namespace, Name: s.Spec.Name}, &creds); err != nil {
 		return nil, err
 	}
-	// fmt.Printf("%v\n", creds)
-	// user, password := []byte{}, []byte{}
-	// _, err = base64.StdEncoding.Decode(user, creds.Data[s.Spec.UserKey])
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// _, err = base64.StdEncoding.Decode(password, creds.Data[s.Spec.PasswordKey])
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	return &UserPassword{User: string(creds.Data[s.Spec.UserKey]), Password: string(creds.Data[s.Spec.PasswordKey])}, nil
 }
