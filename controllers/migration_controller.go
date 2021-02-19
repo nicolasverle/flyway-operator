@@ -67,6 +67,7 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if err != nil {
 			return ctrl.Result{}, err
 		}
+		logs.Info(fmt.Sprintf("user=%s, password=%s", userPass.User, userPass.Password))
 
 		wait := waitForDB(&migration.Spec.DB, log, userPass)
 		if <-wait == false {
