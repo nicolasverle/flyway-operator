@@ -140,6 +140,7 @@ func waitForDB(spec *migrationsv1alpha1.DBSpec, log logr.Logger, creds *UserPass
 		for {
 			_, err := sqlDriver.CheckDBAvailability(spec, creds)
 			if err != nil {
+				log.Info(err.Error())
 				time.Sleep(10 * time.Second)
 				log.Info("waiting for database availability...")
 			} else {
