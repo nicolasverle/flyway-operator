@@ -50,9 +50,23 @@ func (git GitLocation) MutateTemplate(tpl *corev1.PodTemplateSpec) {
 			},
 		},
 	}
+	mode := int32(256)
 	tpl.Spec.Volumes = []corev1.Volume{
-		corev1.Volume{Name: SQLVolumeName, VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
-		corev1.Volume{Name: gitMountName, VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: git.Spec.Secret}}},
+		corev1.Volume{
+			Name: SQLVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{},
+			},
+		},
+		corev1.Volume{
+			Name: gitMountName,
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName:  git.Spec.Secret,
+					DefaultMode: &mode,
+				},
+			},
+		},
 	}
 }
 
