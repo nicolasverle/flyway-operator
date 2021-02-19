@@ -22,11 +22,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	// SQLVolumeName that sets the name of volume for sql scripts
-	SQLVolumeName = "sql-scripts"
-)
-
 // MigrationSpec defines the desired state of Migration
 type MigrationSpec struct {
 	DB  DBSpec  `json:"db"`

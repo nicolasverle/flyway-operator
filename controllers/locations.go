@@ -1,6 +1,10 @@
-package v1alpha1
+package controllers
 
-import corev1 "k8s.io/api/core/v1"
+import (
+	migrationsv1alpha1 "flyway-operator/api/v1alpha1"
+
+	corev1 "k8s.io/api/core/v1"
+)
 
 type (
 	ScriptsLocation interface {
@@ -8,7 +12,7 @@ type (
 	}
 
 	GitLocation struct {
-		Spec *GitMigrationSpec
+		Spec *migrationsv1alpha1.GitMigrationSpec
 	}
 
 	VolumeLocation struct {
@@ -16,10 +20,14 @@ type (
 	}
 )
 
-const gitMountName = "git-key"
+const (
+	gitMountName = "git-key"
+	// SQLVolumeName that sets the name of volume for sql scripts
+	SQLVolumeName = "sql-scripts"
+)
 
-func GetScriptsLocation(spec *SQLSpec) ScriptsLocation {
-	if spec.Git != (GitMigrationSpec{}) {
+func GetScriptsLocation(spec *migrationsv1alpha1.SQLSpec) ScriptsLocation {
+	if spec.Git != (migrationsv1alpha1.GitMigrationSpec{}) {
 		return GitLocation{Spec: &spec.Git}
 	} else if spec.VolumeClaim != "" {
 		return VolumeLocation{Name: spec.VolumeClaim}

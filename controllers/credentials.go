@@ -1,8 +1,10 @@
-package v1alpha1
+package controllers
 
 import (
 	"context"
 	"encoding/base64"
+
+	migrationsv1alpha1 "flyway-operator/api/v1alpha1"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,12 +19,12 @@ type (
 	}
 
 	SecretCredential struct {
-		Spec      *SecretSpec
+		Spec      *migrationsv1alpha1.SecretSpec
 		Namespace string
 	}
 
 	VaultCredential struct {
-		Spec *VaultSpec
+		Spec *migrationsv1alpha1.VaultSpec
 	}
 
 	UserPassword struct {
@@ -31,10 +33,10 @@ type (
 	}
 )
 
-func (migration *Migration) GetCredentials() Credential {
-	if migration.Spec.DB.Secret != (SecretSpec{}) {
+func GetCredentials(migration *migrationsv1alpha1.Migration) Credential {
+	if migration.Spec.DB.Secret != (migrationsv1alpha1.SecretSpec{}) {
 		return SecretCredential{Spec: &migration.Spec.DB.Secret, Namespace: migration.ObjectMeta.Namespace}
-	} else if migration.Spec.DB.Vault != (VaultSpec{}) {
+	} else if migration.Spec.DB.Vault != (migrationsv1alpha1.VaultSpec{}) {
 		return VaultCredential{Spec: &migration.Spec.DB.Vault}
 	}
 	return nil

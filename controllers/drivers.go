@@ -1,9 +1,12 @@
-package v1alpha1
+package controllers
 
 import (
 	"fmt"
 
+	migrationsv1alpha1 "flyway-operator/api/v1alpha1"
+
 	"github.com/jmoiron/sqlx"
+
 	// import postgres driver
 	_ "github.com/lib/pq"
 )
@@ -11,8 +14,8 @@ import (
 type (
 	// Driver interface
 	Driver interface {
-		CheckDBAvailability(spec *DBSpec) (bool, error)
-		ConnectionURL(spec *DBSpec) string
+		CheckDBAvailability(spec *migrationsv1alpha1.DBSpec) (bool, error)
+		ConnectionURL(spec *migrationsv1alpha1.DBSpec) string
 	}
 
 	// PostgresDriver implementation
@@ -25,7 +28,7 @@ var (
 	}
 )
 
-func (d PostgresDriver) CheckDBAvailability(spec *DBSpec) (bool, error) {
+func (d PostgresDriver) CheckDBAvailability(spec *migrationsv1alpha1.DBSpec) (bool, error) {
 	_, err := sqlx.Connect("postgres", fmt.Sprintf("%s:%s@%s", spec.User, spec.Password, spec.URL))
 	if err != nil {
 		return false, err
@@ -33,6 +36,6 @@ func (d PostgresDriver) CheckDBAvailability(spec *DBSpec) (bool, error) {
 	return true, nil
 }
 
-func (d PostgresDriver) ConnectionURL(spec *DBSpec) string {
+func (d PostgresDriver) ConnectionURL(spec *migrationsv1alpha1.DBSpec) string {
 	return fmt.Sprintf("jdbc:postgresql://%s", spec.URL)
 }

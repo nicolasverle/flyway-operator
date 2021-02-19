@@ -58,7 +58,7 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	if migration.ObjectMeta.DeletionTimestamp.IsZero() {
 		// load db creds if provided through secret
-		creds := migration.GetCredentials()
+		creds := GetCredentials(&migration)
 		if creds == nil {
 			return ctrl.Result{}, errors.New("unable to get db credentials for migration")
 		}
@@ -67,7 +67,7 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		if <-wait == false {
 			return ctrl.Result{}, errors.New("timeout reached after trying to connect to db")
 		}
-		driver := migrationsv1alpha1.Drivers[migration.Spec.DB.Driver]
+		sqlDriver := Drivers[migration.Spec.DB.Driver]
 		job := batchv1.Job{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      fmt.Sprintf("flyway-%s", req.NamespacedName.Name),
@@ -84,11 +84,11 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 								ImagePullPolicy: corev1.PullIfNotPresent,
 								Env: []corev1.EnvVar{
 									corev1.EnvVar{Name: "FLYWAY_DRIVER", Value: migration.Spec.DB.Driver},
-									corev1.EnvVar{Name: "FLYWAY_URL", Value: driver.ConnectionURL(&migration.Spec.DB)},
+									corev1.EnvVar{Name: "FLYWAY_URL", Value: sqlDriver.ConnectionURL(&migration.Spec.DB)},
 								},
 								Args: []string{"migrate"},
 								VolumeMounts: []corev1.VolumeMount{
-									corev1.VolumeMount{Name: migrationsv1alpha1.SQLVolumeName, MountPath: "/flyway/sql"},
+									corev1.VolumeMount{Name: SQLVolumeName, MountPath: "/flyway/sql"},
 								},
 							},
 						},
@@ -99,7 +99,7 @@ func (r *MigrationReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		// mutate template according to creds specs
 		creds.MutateTemplate(&job.Spec.Template)
-		location := migrationsv1alpha1.GetScriptsLocation(&migration.Spec.SQL)
+		location := GetScriptsLocation(&migration.Spec.SQL)
 		if location == nil {
 			return ctrl.Result{}, errors.New("unable to detect sql scripts location")
 		}
@@ -131,9 +131,9 @@ func waitForDB(spec *migrationsv1alpha1.DBSpec, log logr.Logger) chan bool {
 
 	go func() {
 		defer cancel()
-		pgDriver := migrationsv1alpha1.Drivers[spec.Driver]
+		sqlDriver := Drivers[spec.Driver]
 		for {
-			_, err := pgDriver.CheckDBAvailability(spec)
+			_, err := sqlDriver.CheckDBAvailability(spec)
 			if err != nil {
 				time.Sleep(10 * time.Second)
 				log.Info("waiting for database availability...")
